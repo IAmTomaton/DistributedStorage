@@ -29,7 +29,7 @@ class DSClient(threading.Thread):
         self._conn.close()
 
     def run(self):
-        pass
+        self._work()
 
     @property
     def live(self):

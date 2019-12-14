@@ -32,7 +32,8 @@ class Manager:
 
     def _add_server(self, conn, addr):
         server = self._servers[self._servers_dict[addr]]
-        ds_server = DSServer(conn, self._settings, self, server.applications)
+        ds_server = DSServer(conn, self._settings, self, server.applications,
+                             self._packer, self._unpacker)
         server.ds_server = ds_server
         ds_server.start()
         ds_server.send(self._get_sync_package())
@@ -57,7 +58,7 @@ class Manager:
     def handle_package(self, package, customer):
         command, key, value = self._unpacker.parse_package(package)
         if command == "g":
-            self._create_order(key, customer)
+            self._create_order(key, package, customer)
         elif command == "s":
             self._send_set_package(package, key)
 
@@ -71,7 +72,7 @@ class Manager:
             else:
                 self._servers[index_server].applications.put(key)
 
-    def _create_order(self, key, customer):
+    def _create_order(self, key, package, customer):
         hash = self._get_hash(key)
         order = Order(key, customer)
 
@@ -79,6 +80,7 @@ class Manager:
             index_server = (hash + i) % len(self._server_addresses)
             if self._servers[index_server].is_connected:
                 self._servers[index_server].add_order(order)
+                self._servers[index_server].ds_server.send(package)
 
     def _get_hash(self, key):
         number = 11
