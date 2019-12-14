@@ -1,6 +1,7 @@
 from distributed_storage.router.server import Server
 from distributed_storage.router.ds_server import DSServer
 from distributed_storage.router.ds_client import DSClient
+from distributed_storage.router.order import Order
 
 
 class Manager:
@@ -14,6 +15,7 @@ class Manager:
         self._unpacker = unpacker
         self._max_len_value = max_len_value
         self._settings = settings
+        self._amount_duplication = 2
 
     def _init_servers(self):
         self._servers = []
@@ -54,6 +56,29 @@ class Manager:
 
     def handle_package(self, package, customer):
         command, key, value = self._unpacker.parse_package(package)
+        if command == "g":
+            self._create_order(key, customer)
+        elif command == "s":
+            self._send_set_package(package, key)
+
+    def _send_set_package(self, package, key):
+        hash = self._get_hash(key)
+
+        for i in range(self._amount_duplication):
+            index_server = (hash + i) % len(self._server_addresses)
+            if self._servers[index_server].is_connected:
+                self._servers[index_server].ds_server.send(package)
+            else:
+                self._servers[index_server].applications.put(key)
+
+    def _create_order(self, key, customer):
+        hash = self._get_hash(key)
+        order = Order(key, customer)
+
+        for i in range(self._amount_duplication):
+            index_server = (hash + i) % len(self._server_addresses)
+            if self._servers[index_server].is_connected:
+                self._servers[index_server].add_order(order)
 
     def _get_hash(self, key):
         number = 11
