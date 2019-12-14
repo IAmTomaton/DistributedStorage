@@ -50,8 +50,9 @@ class DSServer(threading.Thread):
         self._conn.close()
 
     def _handle_applications(self):
-        for a in self._applications:
-            get = self._packer.create_get_package(a)
+        while not self._applications.empty():
+            app = self._applications.get()
+            get = self._packer.create_get_package(app)
             self._manager.handle_package(get, self)
 
     def run(self):
