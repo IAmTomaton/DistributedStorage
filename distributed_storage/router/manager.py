@@ -53,7 +53,14 @@ class Manager:
                 s.ds_server = None
 
     def handle_package(self, package, customer):
-        pass
+        command, key, value = self._unpacker.parse_package(package)
+
+    def _get_hash(self, key):
+        number = 11
+        sum = 0
+        for i in key:
+            sum = int.from_bytes(i.encode('utf-8'), "big") + sum * number
+        return sum % len(self._server_addresses)
 
     def _get_sync_package(self):
         return self._packer.create_sync_package(self._max_len_value)
