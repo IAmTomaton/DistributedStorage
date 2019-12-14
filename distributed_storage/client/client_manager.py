@@ -1,8 +1,9 @@
 from distributed_storage.client.ds_client import DSClient
-from distributed_storage.client.packer import Packer
-from distributed_storage.client.unpacker import Unpacker
-from distributed_storage.client.settings import Settings
+from distributed_storage.packages.packer import Packer
+from distributed_storage.packages.unpacker import Unpacker
+from distributed_storage.packages.settings import Settings
 from distributed_storage.client.client import Client
+from distributed_storage.client.buffer import Buffer
 
 
 class ClientManager:
@@ -10,11 +11,13 @@ class ClientManager:
     def __init__(self, ip, port):
         settings = Settings(2048)
 
-        handler = Unpacker(settings)
+        unpacker = Unpacker(settings)
         packer = Packer(settings)
-        ds_client = DSClient(ip, port, handler, settings)
+        buffer = Buffer(unpacker)
 
-        self._client = Client(packer, ds_client)
+        ds_client = DSClient(ip, port, buffer, settings)
+
+        self._client = Client(packer, buffer, ds_client)
 
     def __enter__(self):
         self._client._start()

@@ -1,0 +1,2 @@
+class ConnectExeption(Exception):
+    pass

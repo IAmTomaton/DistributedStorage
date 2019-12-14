@@ -3,13 +3,23 @@ import math
 
 class Settings:
 
-    def __init__(self, max_len_value):
-        self._max_len_value = max_len_value
+    def __init__(self):
+        self._max_len_value = 2048
         self._max_len_key = 256
+        self._encoding = 'utf-8'
+        self._synchronized = False
+
+    @property
+    def synchronized(self):
+        return self._synchronized
 
     @property
     def max_len_value(self):
         return self._max_len_value
+
+    @property
+    def encoding(self):
+        return self._encoding
 
     @property
     def max_len_key(self):

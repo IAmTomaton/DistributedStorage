@@ -1,18 +1,18 @@
 import unittest
-from distributed_storage.client.settings import Settings
+from distributed_storage.packages.settings import Settings
 
 
 class Test_settings(unittest.TestCase):
 
     def test_len_len_value(self):
-        settings = Settings(2048)
+        settings = Settings()
 
         result = settings.len_len_value
 
         self.assertEqual(2, result)
 
     def test_len_package(self):
-        settings = Settings(2048)
+        settings = Settings()
 
         result = settings.len_package
 

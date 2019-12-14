@@ -2,12 +2,11 @@ class Packer:
 
     def __init__(self, settings):
         self._settings = settings
-        self._encoding = 'utf-8'
-
+        
     def create_get_package(self, key):
         package = bytearray(b'g')
 
-        key_byte = bytearray(key.encode(self._encoding))
+        key_byte = bytearray(key.encode(self._settings.encoding))
         len_key = len(key_byte)
         key_package = key_byte + bytearray(b'\x00') *\
             (self._settings.max_len_key - len_key)
@@ -28,7 +27,7 @@ class Packer:
     def create_set_package(self, key, value):
         package = bytearray(b's')
 
-        key_byte = bytearray(key.encode(self._encoding))
+        key_byte = bytearray(key.encode(self._settings.encoding))
         len_key = len(key_byte)
         key_package = key_byte + bytearray(b'\x00') *\
             (self._settings.max_len_key - len_key)
@@ -39,7 +38,7 @@ class Packer:
         package += len_key_package
         package += key_package
 
-        value_byte = bytearray(value.encode(self._encoding))
+        value_byte = bytearray(value.encode(self._settings.encoding))
         len_value = len(value_byte)
         value_package = value_byte + bytearray(b'\x00') *\
             (self._settings.max_len_value - len_value)
@@ -49,5 +48,14 @@ class Packer:
 
         package += len_value_package
         package += value_package
+
+        return bytes(package)
+
+    def create_sync_package(self, max_len_value):
+        package = bytearray(b'y')
+
+        package += bytearray((max_len_value).to_bytes(4, byteorder='big'))
+
+        package += bytearray(b'\x00') * (self._settings.len_package - 5)
 
         return bytes(package)
