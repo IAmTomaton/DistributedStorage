@@ -37,14 +37,11 @@ class Test_unpacker(unittest.TestCase):
         packer = Packer(settings)
         unpacker = Unpacker(settings)
 
-        package = packer.create_sync_package(1000)
+        package = packer.create_sync_package()
 
-        command, key, value = unpacker.parse_package(package)
+        unpacker.parse_sync_package(package)
 
-        self.assertEqual(1000, settings.max_len_value)
-        self.assertEqual(None, command)
-        self.assertEqual(None, key)
-        self.assertEqual(None, value)
+        self.assertEqual(2048, settings.max_len_value)
 
 
 if __name__ == '__main__':

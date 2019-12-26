@@ -1,64 +1,63 @@
 from distributed_storage.router.server import Server
-from distributed_storage.router.ds_server import DSServer
-from distributed_storage.router.ds_client import DSClient
+from distributed_storage.router.client import Client
 from distributed_storage.router.order import Order
+from distributed_storage.router.orders import Orders
+from threading import Lock
 
 
 class Manager:
 
-    def __init__(self, server_addresses, packer, unpacker, settings,
-                 max_len_value):
-        self._server_addresses = server_addresses
-        self._init_servers()
-        self._clients = []
+    def __init__(self, packer, unpacker, settings, number_servers):
         self._packer = packer
         self._unpacker = unpacker
-        self._max_len_value = max_len_value
         self._settings = settings
         self._amount_duplication = 2
 
-    def _init_servers(self):
-        self._servers = []
-        self._servers_dict = {}
-        for i in range(len(self._server_addresses)):
-            self._servers.append(Server())
-            self._servers_dict[self._server_addresses[i]] = i
+        self._number_servers = number_servers
+        self._application_table = []
+        self._application_lock = Lock()
+        self._order_table = []
+        self._server_table = []
+        for i in range(self._number_servers):
+            self._application_table.append([])
+            self._order_table.append(Orders())
+            self._server_table.append(Server(self._settings,
+                                             self,
+                                             self._packer,
+                                             self._unpacker,
+                                             i))
 
-    def connect(self, conn, addr):
-        if addr in self._server_addresses:
-            self._add_server(conn, addr)
-        else:
-            self._add_client(conn, addr)
+    def add_server(self, conn, addr, number):
+        self._server_table[number].connect(conn)
 
-    def _add_server(self, conn, addr):
-        server = self._servers[self._servers_dict[addr]]
-        ds_server = DSServer(conn, self._settings, self, server.applications,
-                             self._packer, self._unpacker)
-        server.ds_server = ds_server
-        ds_server.start()
-        ds_server.send(self._get_sync_package())
+        self._application_lock.acquire()
+        try:
+            self._update_application_table()
+        finally:
+            self._application_lock.release()
 
-    def _add_client(self, conn, addr):
-        ds_client = DSClient(conn, self._settings, self)
-        self._clients.append(ds_client)
-        ds_client.start()
-        ds_client.send(self._get_sync_package())
+    def _update_application_table(self):
+        for i in range(self._number_servers):
+            server = self._server_table[i]
+            buffer = []
+            for key in self._application_table[i]:
+                get_package = self._packer.create_get_package(key)
+                count = self._create_order(key, package, server)
+                if count == 0:
+                    buffer.append(key)
+            self._application_table[i] = buffer
 
-    def clear(self):
-        i = 0
-        while i < len(self._clients):
-            if not self._clients[i].live:
-                self._clients.pop(i)
-            else:
-                i += 1
-        for s in self._servers:
-            if not s.ds_server.live:
-                s.ds_server = None
+    def add_client(self, conn, addr):
+        client = Client(conn, self._settings, self)
+        client.start()
+        client.send(self._get_sync_package())
 
-    def handle_package(self, package, customer):
+    def handle_client_package(self, package, customer):
         command, key, value = self._unpacker.parse_package(package)
         if command == "g":
-            self._create_order(key, package, customer)
+            count = self._create_order(key, package, customer)
+            if count == 0:
+                customer.send(self._packer.create_error_package_not_server(key))
         elif command == "s":
             self._send_set_package(package, key)
 
@@ -66,11 +65,21 @@ class Manager:
         hash = self._get_hash(key)
 
         for i in range(self._amount_duplication):
-            index_server = (hash + i) % len(self._server_addresses)
-            if self._servers[index_server].is_connected:
-                self._servers[index_server].ds_server.send(package)
-            else:
-                self._servers[index_server].applications.put(key)
+            index_server = (hash + i) % self._number_servers
+            self.try_send_set_package(index_server, key, package)
+
+    def try_send_set_package(self, index_server, key, package):
+        if self._server_table[index_server].connected:
+            self._server_table[index_server].send(package)
+        else:
+            self._add_application(key, index_server)
+
+    def _add_application(self, key, index):
+        self._application_lock.acquire()
+        try:
+            self._application_table[index].append(key)
+        finally:
+            self._application_lock.release()
 
     def _create_order(self, key, package, customer):
         hash = self._get_hash(key)
@@ -78,16 +87,30 @@ class Manager:
 
         for i in range(self._amount_duplication):
             index_server = (hash + i) % len(self._server_addresses)
-            if self._servers[index_server].is_connected:
-                self._servers[index_server].add_order(order)
-                self._servers[index_server].ds_server.send(package)
+            if self._server_table[index_server] != customer and\
+                self._server_table[index_server].connected:
+
+                self._add_order(order, index_server)
+                self._server_table[index_server].send(package)
+        return order.count
+
+    def _add_order(self, order, index):
+        self._order_table[index].add_order(order)
+
+    def handle_server_package(self, package, number):
+        command, key, value = self._unpacker.parse_package(package)
+        self._order_table[number].send(command, key, package, number,
+                                       self._packer, self)
 
     def _get_hash(self, key):
         number = 11
         sum = 0
         for i in key:
             sum = int.from_bytes(i.encode('utf-8'), "big") + sum * number
-        return sum % len(self._server_addresses)
+        return sum % self._number_servers
 
     def _get_sync_package(self):
-        return self._packer.create_sync_package(self._max_len_value)
+        return self._packer.create_sync_package()
+
+    def skip_orders(self, index):
+        self._order_table[index].skip()

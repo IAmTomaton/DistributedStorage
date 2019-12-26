@@ -1,3 +1,6 @@
+from time import sleep
+
+
 class Client:
 
     def __init__(self, packer, buffer, ds_client):
@@ -18,7 +21,7 @@ class Client:
 
     def check_sync(self):
         while not self._packer._settings.synchronized:
-            pass
+            sleep(0.1)
 
     def _start(self):
         self._ds_client.start()

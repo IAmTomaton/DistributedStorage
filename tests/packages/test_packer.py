@@ -28,10 +28,18 @@ class Test_packer(unittest.TestCase):
         settings = Settings()
         packer = Packer(settings)
 
-        result = packer.create_sync_package(100)
+        result = packer.create_sync_package()
         
         self.assertEqual(2308, len(result))
-        self.assertEqual(100, int.from_bytes(result[1:5], "big"))
+        self.assertEqual(2048, int.from_bytes(result[1:5], "big"))
+
+    def test_create_error_package(self):
+        settings = Settings()
+        packer = Packer(settings)
+
+        result = packer.create_error_package("1", "2")
+        
+        self.assertEqual(2308, len(result))
 
 
 if __name__ == '__main__':

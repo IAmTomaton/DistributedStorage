@@ -7,10 +7,6 @@ class Unpacker:
         command = package[0:1]
         str_command = command.decode(self._settings.encoding)
 
-        if str_command == "y":
-            self._parse_sync_package(package)
-            return None, None, None
-
         len_key = int.from_bytes(
             package[1:1 + self._settings.len_len_key], "big")
         key = package[1 + self._settings.len_len_key:
@@ -34,8 +30,19 @@ class Unpacker:
 
         return str_command, str_key, str_value
 
-    def _parse_sync_package(self, package):
-        max_len_value = int.from_bytes(
-            package[1:5], "big")
-        self._settings._max_len_value = max_len_value
-        self._settings._synchronized = True
+    def parse_sync_package(self, package):
+        command = package[0:1]
+        str_command = command.decode(self._settings.encoding)
+
+        if str_command != "y":
+            return
+        max_len_value = int.from_bytes(package[1:5], "big")
+        self._settings.max_len_value = max_len_value
+
+    def parse_number_package(self, package):
+        command = package[0:1]
+        str_command = command.decode(self._settings.encoding)
+
+        if str_command != "n":
+            return
+        return int.from_bytes(package[1:2], "big")
