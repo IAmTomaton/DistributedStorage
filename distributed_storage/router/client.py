@@ -16,7 +16,7 @@ class Client(threading.Thread):
             self._conn.send(package)
 
     def _work(self):
-        self._conn.timeout(0.1)
+        self._conn.settimeout(0.1)
         try:
             while self._live:
                 try:
@@ -28,12 +28,14 @@ class Client(threading.Thread):
                     pass
         finally:
             self._live = False
-            self._conn.shutdown(socket.SHUT_RDWR)
+            try:
+                sock.shutdown(socket.SHUT_RDWR)
+            except:
+                pass
             self._conn.close()
 
     def run(self):
         self._work()
 
-    @property
-    def live(self):
-        return self._live
+    def turn_off(self):
+        self._live = False

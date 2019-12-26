@@ -12,16 +12,12 @@ class ClientConnector(threading.Thread):
         self._packer = packer
         self._live = False
 
-    def _disconnect(self):
-        self._conn.shutdown(socket.SHUT_RDWR)
-        self._conn.close()
-        self._conn = None
-
     def _accept_connections(self):
         sock = socket.socket()
         sock.bind((self._ip, self._port))
+        sock.listen(1)
 
-        sock.timeout(1)
+        sock.settimeout(1)
 
         self._live = True
         try:
@@ -34,11 +30,14 @@ class ClientConnector(threading.Thread):
                     pass
         finally:
             self._live = False
-            sock.shutdown(socket.SHUT_RDWR)
+            try:
+                sock.shutdown(socket.SHUT_RDWR)
+            except:
+                pass
             sock.close()
 
     def run(self):
         self._accept_connections()
 
-
-
+    def turn_off(self):
+        self._live = False

@@ -63,9 +63,9 @@ class Packer:
     def create_number_package(self, number):
         package = bytearray(b'n')
 
-        package += bytearray((max_len_value).to_bytes(4, byteorder='big'))
+        package += bytearray((number).to_bytes(4, byteorder='big'))
 
-        package += bytearray(b'\x00') * (self._settings.len_package - 2)
+        package += bytearray(b'\x00') * (self._settings.len_package - 5)
 
         return bytes(package)
 

@@ -5,11 +5,7 @@ from decimal import Decimal
 class Settings:
 
     def __init__(self):
-        self._max_len_value = 2048
-        self._max_len_key = 256
-        self._encoding = 'utf-8'
-        self._synchronized = False
-        self._standart_len_package = self.len_package
+        self.reset()
 
     @property
     def synchronized(self):
@@ -47,3 +43,10 @@ class Settings:
     @property
     def standart_len_package(self):
         return self._standart_len_package
+
+    def reset(self):
+        self._max_len_value = 2048
+        self._max_len_key = 256
+        self._encoding = 'utf-8'
+        self._synchronized = False
+        self._standart_len_package = self.len_package

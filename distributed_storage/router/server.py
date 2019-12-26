@@ -1,5 +1,4 @@
 import threading
-from multiprocessing import Manager
 import socket
 
 
@@ -8,11 +7,12 @@ class Server(threading.Thread):
     def __init__(self, settings, manager, packer, unpacker, number):
         threading.Thread.__init__(self)
         self._manager = manager
-        self._applications = applications
         self._settings = settings
         self._packer = packer
         self._unpacker = unpacker
         self._number = number
+        self._conn = None
+        self._live = False
 
     @property
     def connected(self):
@@ -27,10 +27,15 @@ class Server(threading.Thread):
 
     def connect(self, conn):
         self._conn = conn
+        print(self._conn)
+        try:
+            package = self._conn.recv(self._settings.len_package)
+        except socket.timeout:
+            print(1)
         self.start()
 
     def _work(self):
-        self._conn.timeout(0.1)
+        self._conn.settimeout(0.1)
         self._live = True
         try:
             while self._live:
@@ -44,10 +49,21 @@ class Server(threading.Thread):
                     pass
         finally:
             self._live = False
-            self._conn.shutdown(socket.SHUT_RDWR)
+            try:
+                sock.shutdown(socket.SHUT_RDWR)
+            except:
+                pass
             self._conn.close()
             self._conn = None
             self._manager.skip_orders(self._number)
 
     def run(self):
+        print(self._conn)
+        try:
+            package = self._conn.recv(self._settings.len_package)
+        except socket.timeout:
+            print(1)
         self._work()
+
+    def turn_off(self):
+        self._live = False

@@ -12,6 +12,7 @@ class Manager:
         self._unpacker = unpacker
         self._settings = settings
         self._amount_duplication = 2
+        self._clients = []
 
         self._number_servers = number_servers
         self._application_table = []
@@ -49,6 +50,7 @@ class Manager:
 
     def add_client(self, conn, addr):
         client = Client(conn, self._settings, self)
+        self._clients.append(client)
         client.start()
         client.send(self._get_sync_package())
 
@@ -86,7 +88,7 @@ class Manager:
         order = Order(key, customer)
 
         for i in range(self._amount_duplication):
-            index_server = (hash + i) % len(self._server_addresses)
+            index_server = (hash + i) % self._number_servers
             if self._server_table[index_server] != customer and\
                 self._server_table[index_server].connected:
 
@@ -114,3 +116,9 @@ class Manager:
 
     def skip_orders(self, index):
         self._order_table[index].skip()
+
+    def turn_off(self):
+        for client in self._clients:
+            client.turn_off()
+        for server in self._server_table:
+            server.turn_off()

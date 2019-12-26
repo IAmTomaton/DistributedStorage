@@ -16,7 +16,7 @@ class Test_test_buffer(unittest.TestCase):
 
         buffer.handle_package(package)
 
-        self.assertEqual("qw", buffer.get("a"))
+        self.assertEqual(("qw", None), buffer.get("a"))
 
 
 if __name__ == '__main__':

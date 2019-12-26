@@ -45,4 +45,4 @@ class Unpacker:
 
         if str_command != "n":
             return
-        return int.from_bytes(package[1:2], "big")
+        return int.from_bytes(package[1:5], "big")

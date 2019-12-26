@@ -14,16 +14,12 @@ class ServerConnector(threading.Thread):
         self._unpacker = unpacker
         self._live = False
 
-    def _disconnect(self):
-        self._conn.shutdown(socket.SHUT_RDWR)
-        self._conn.close()
-        self._conn = None
-
     def _accept_connections(self):
         sock = socket.socket()
         sock.bind((self._ip, self._port))
+        sock.listen(1)
 
-        sock.timeout(1)
+        sock.settimeout(1)
 
         self._live = True
         try:
@@ -34,20 +30,21 @@ class ServerConnector(threading.Thread):
                     pass
         finally:
             self._live = False
-            sock.shutdown(socket.SHUT_RDWR)
+            try:
+                sock.shutdown(socket.SHUT_RDWR)
+            except:
+                pass
             sock.close()
 
     def _accept(self, sock):
         conn, addr = sock.accept()
         try:
             conn.send(self._packer.create_sync_package())
-            conn.timeout(0.1)
+            conn.settimeout(0.1)
             while self._live:
                 try:
-                    package = conn.recv(self._settings.len_package)
+                    package = conn.recv(self._settings.standart_len_package)
                     if len(package) == 0:
-                        conn.shutdown(socket.SHUT_RDWR)
-                        conn.close()
                         break
                     number = self._unpacker.parse_number_package(package)
                     self._manager.add_server(conn, addr, number)
@@ -55,8 +52,14 @@ class ServerConnector(threading.Thread):
                 except socket.timeout:
                     pass
         finally:
-            conn.shutdown(socket.SHUT_RDWR)
+            try:
+                sock.shutdown(socket.SHUT_RDWR)
+            except:
+                pass
             conn.close()
 
     def run(self):
         self._accept_connections()
+
+    def turn_off(self):
+        self._live = False
