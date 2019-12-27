@@ -19,7 +19,7 @@ class Test_packer(unittest.TestCase):
         packer = Packer(settings)
 
         result = packer.create_set_package("testkey", "value")
-        
+
         self.assertEqual(1284, len(result))
         self.assertEqual(7, int.from_bytes(result[1:2], "big"))
         self.assertEqual(5, int.from_bytes(result[258:260], "big"))
@@ -29,7 +29,7 @@ class Test_packer(unittest.TestCase):
         packer = Packer(settings)
 
         result = packer.create_sync_package()
-        
+
         self.assertEqual(1284, len(result))
         self.assertEqual(1024, int.from_bytes(result[1:5], "big"))
 
@@ -38,7 +38,7 @@ class Test_packer(unittest.TestCase):
         packer = Packer(settings)
 
         result = packer.create_error_package("1", "2")
-        
+
         self.assertEqual(1284, len(result))
 
 
