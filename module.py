@@ -8,8 +8,8 @@ try:
     router = Router("", 9091, "", 9090, 5)
     router.start()
 
-    server = Server("localhost", 9091, 0)
-    server.start()
+    server0 = Server("localhost", 9091, 0)
+    server0.start()
 
     client = Client("localhost", 9090)
     client.start()
@@ -17,6 +17,13 @@ try:
     sleep(1)
 
     client.set("123", "456")
+
+    router._manager._application_table[2] = []
+
+    sleep(1)
+
+    server2 = Server("localhost", 9091, 2)
+    server2.start()
 
     value, error = client.get("123")
     print(value)
@@ -26,6 +33,7 @@ try:
 
 
 finally:
-    server.turn_off()
+    server0.turn_off()
+    server2.turn_off()
     client.turn_off()
     router.turn_off()

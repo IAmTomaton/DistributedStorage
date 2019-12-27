@@ -43,7 +43,7 @@ class Manager:
             buffer = []
             for key in self._application_table[i]:
                 get_package = self._packer.create_get_package(key)
-                count = self._create_order(key, package, server)
+                count = self._create_order(key, get_package, server)
                 if count == 0:
                     buffer.append(key)
             self._application_table[i] = buffer
