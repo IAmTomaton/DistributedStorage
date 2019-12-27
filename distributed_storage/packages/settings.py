@@ -45,7 +45,7 @@ class Settings:
         return self._standart_len_package
 
     def reset(self):
-        self._max_len_value = 2048
+        self._max_len_value = 1024
         self._max_len_key = 256
         self._encoding = 'utf-8'
         self._synchronized = False

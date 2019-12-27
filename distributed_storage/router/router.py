@@ -11,7 +11,7 @@ class Router:
     def __init__(self, server_ip, server_port, client_ip, client_port,
                  number_servers):
         settings = Settings()
-        settings.max_len_value = 2048
+        settings.max_len_value = 1024
         packer = Packer(settings)
         unpacker = Unpacker(settings)
         self._manager = Manager(packer, unpacker, settings, number_servers)

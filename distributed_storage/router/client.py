@@ -17,10 +17,12 @@ class Client(threading.Thread):
 
     def _work(self):
         self._conn.settimeout(0.1)
+        self._live = True
         try:
             while self._live:
                 try:
                     package = self._conn.recv(self._settings.len_package)
+                    print(self._settings.len_package, len(package))
                     if len(package) == 0:
                         break
                     self._manager.handle_client_package(package, self)

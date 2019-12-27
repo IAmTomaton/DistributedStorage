@@ -38,25 +38,28 @@ class ServerConnector(threading.Thread):
 
     def _accept(self, sock):
         conn, addr = sock.accept()
+        check = True
         try:
             conn.send(self._packer.create_sync_package())
             conn.settimeout(0.1)
             while self._live:
                 try:
                     package = conn.recv(self._settings.standart_len_package)
-                    if len(package) == 0:
+                    if not package:
                         break
                     number = self._unpacker.parse_number_package(package)
                     self._manager.add_server(conn, addr, number)
-                    break
+                    check = False
+                    return
                 except socket.timeout:
                     pass
         finally:
-            try:
-                sock.shutdown(socket.SHUT_RDWR)
-            except:
-                pass
-            conn.close()
+            if check:
+                try:
+                    conn.shutdown(socket.SHUT_RDWR)
+                except:
+                    pass
+                conn.close()
 
     def run(self):
         self._accept_connections()

@@ -1,4 +1,5 @@
 import threading
+from threading import Lock
 import socket
 
 
@@ -13,6 +14,7 @@ class Server(threading.Thread):
         self._number = number
         self._conn = None
         self._live = False
+        self._lock = Lock()
 
     @property
     def connected(self):
@@ -20,18 +22,17 @@ class Server(threading.Thread):
             self._conn.fileno() != -1
 
     def send(self, package):
-        if (self._conn is not None and\
-            self._conn.fileno() != -1 and\
-            self._live):
-            self._conn.send(package)
+        self._lock.acquire()
+        try:
+            if (self._conn is not None and\
+                self._conn.fileno() != -1 and\
+                self._live):
+                self._conn.send(package)
+        finally:
+            self._lock.release()
 
     def connect(self, conn):
         self._conn = conn
-        print(self._conn)
-        try:
-            package = self._conn.recv(self._settings.len_package)
-        except socket.timeout:
-            print(1)
         self.start()
 
     def _work(self):
@@ -49,20 +50,19 @@ class Server(threading.Thread):
                     pass
         finally:
             self._live = False
+            self._lock.acquire()
             try:
-                sock.shutdown(socket.SHUT_RDWR)
-            except:
-                pass
-            self._conn.close()
-            self._conn = None
+                try:
+                    sock.shutdown(socket.SHUT_RDWR)
+                except:
+                    pass
+                self._conn.close()
+                self._conn = None
+            finally:
+                self._lock.release()
             self._manager.skip_orders(self._number)
 
     def run(self):
-        print(self._conn)
-        try:
-            package = self._conn.recv(self._settings.len_package)
-        except socket.timeout:
-            print(1)
         self._work()
 
     def turn_off(self):

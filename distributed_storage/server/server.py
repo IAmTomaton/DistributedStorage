@@ -2,6 +2,7 @@ from distributed_storage.packages.packer import Packer
 from distributed_storage.packages.unpacker import Unpacker
 from distributed_storage.packages.settings import Settings
 from distributed_storage.server.ds_server import DSServer
+from distributed_storage.server.data import Data
 
 
 class Server:
@@ -11,7 +12,7 @@ class Server:
 
         self._unpacker = Unpacker(self._settings)
         self._packer = Packer(self._settings)
-        self._data = None
+        self._data = Data(self._packer, self._unpacker)
         self._ds_server = DSServer(ip, port, self._data, self._settings,
                                    self._packer, number)
 

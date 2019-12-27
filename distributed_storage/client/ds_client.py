@@ -15,25 +15,23 @@ class DSClient(threading.Thread):
     def _work(self):
         self._sock = socket.socket()
         
-        try:
-            while self._live:
-                self._connect()
-
-                while self._live:
-                    try:
-                        package = self._sock.recv(self._settings.len_package)
-                        if len(package) == 0:
-                            break
-                        self._handler.handle_package(package)
-                    except socket.timeout:
-                        pass
-        finally:
-            self._live = False
+        while self._live:
             try:
-                self._sock.shutdown(socket.SHUT_RDWR)
-            except:
-                pass
-            self._sock.close()
+                if self._connect():
+                    while self._live:
+                        try:
+                            package = self._sock.recv(self._settings.len_package)
+                            if len(package) == 0:
+                                break
+                            self._handler.handle_package(package)
+                        except socket.timeout:
+                            pass
+            finally:
+                try:
+                    self._sock.shutdown(socket.SHUT_RDWR)
+                except:
+                    pass
+                self._sock.close()
 
     def run(self):
         self._work()
@@ -43,9 +41,10 @@ class DSClient(threading.Thread):
             try:
                 self._sock.connect((self._ip, self._port))
                 self._sock.settimeout(0.1)
-                break
+                return True
             except ConnectionRefusedError:
                 pass
+        return False
 
     def send(self, package):
         self._sock.send(package)

@@ -28,9 +28,13 @@ class Buffer:
 
     def handle_package(self, package):
         command, key, value = self._unpacker.parse_package(package)
-        if command == "s":
-            self._buffer[key] = value
-        if command == "y":
-            self._unpacker.parse_sync_package(package)
-        if command == "e":
-            self._errors[key] = value
+        self._buffer_lock.acquire()
+        try:
+            if command == "s":
+                self._buffer[key] = value
+            if command == "y":
+                self._unpacker.parse_sync_package(package)
+            if command == "e":
+                self._errors[key] = value
+        finally:
+            self._buffer_lock.release()
