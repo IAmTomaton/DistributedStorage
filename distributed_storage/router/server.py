@@ -24,9 +24,7 @@ class Server(threading.Thread):
     def send(self, package):
         self._lock.acquire()
         try:
-            if (self._conn is not None and\
-                self._conn.fileno() != -1 and\
-                self._live):
+            if (self.connected and self._live):
                 self._conn.send(package)
         finally:
             self._lock.release()

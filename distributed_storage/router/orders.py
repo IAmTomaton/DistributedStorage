@@ -32,7 +32,8 @@ class Orders:
     def _check_order(self, order, packer, manager):
         if order.count == 0:
             if order.package is None:
-                order.customer.send(packer.create_error_package_not_key(order.key))
+                order.customer.send(
+                    packer.create_error_package_not_key(order.key))
             else:
                 errors = order.errors
                 for i in errors:

@@ -12,18 +12,21 @@ class Unpacker:
         key = package[1 + self._settings.len_len_key:
                       1 + self._settings.len_len_key + len_key]
 
+        len_value_start = 1 + self._settings.len_len_key +\
+            self._settings.max_len_key
+        len_value_end = 1 + self._settings.len_len_key +\
+            self._settings.max_len_key +\
+            self._settings.len_len_value
         len_value = int.from_bytes(
-            package[1 + self._settings.len_len_key +\
-                self._settings.max_len_key:
-                    1 + self._settings.len_len_key +\
-                self._settings.max_len_key +\
-                self._settings.len_len_value], "big")
-        value = package[1 + self._settings.len_len_key +\
-                self._settings.max_len_key +\
-                self._settings.len_len_value:
-                      1 + self._settings.len_len_key +\
-                self._settings.max_len_key +\
-                self._settings.len_len_value + len_value]
+            package[len_value_start: len_value_end], "big")
+
+        value_start = 1 + self._settings.len_len_key +\
+            self._settings.max_len_key +\
+            self._settings.len_len_value
+        value_end = 1 + self._settings.len_len_key +\
+            self._settings.max_len_key +\
+            self._settings.len_len_value + len_value
+        value = package[value_start: value_end]
 
         str_key = key.decode(self._settings.encoding)
         str_value = value.decode(self._settings.encoding)

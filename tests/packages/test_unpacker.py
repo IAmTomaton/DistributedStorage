@@ -41,7 +41,7 @@ class Test_unpacker(unittest.TestCase):
 
         unpacker.parse_sync_package(package)
 
-        self.assertEqual(2048, settings.max_len_value)
+        self.assertEqual(1024, settings.max_len_value)
 
 
 if __name__ == '__main__':

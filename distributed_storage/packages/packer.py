@@ -2,7 +2,7 @@ class Packer:
 
     def __init__(self, settings):
         self._settings = settings
-        
+
     def create_get_package(self, key):
         package = bytearray(b'g')
 
@@ -54,9 +54,11 @@ class Packer:
     def create_sync_package(self):
         package = bytearray(b'y')
 
-        package += bytearray((self._settings.max_len_value).to_bytes(4, byteorder='big'))
+        package += bytearray((self._settings.max_len_value).to_bytes(
+            4, byteorder='big'))
 
-        package += bytearray(b'\x00') * (self._settings.standart_len_package - 5)
+        package += bytearray(b'\x00') * (
+            self._settings.standart_len_package - 5)
 
         return bytes(package)
 

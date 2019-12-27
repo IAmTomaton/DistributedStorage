@@ -16,7 +16,7 @@ class Test_settings(unittest.TestCase):
 
         result = settings.len_package
 
-        self.assertEqual(2308, result)
+        self.assertEqual(1284, result)
 
 
 if __name__ == '__main__':

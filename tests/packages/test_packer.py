@@ -11,7 +11,7 @@ class Test_packer(unittest.TestCase):
 
         result = packer.create_get_package("testkey")
 
-        self.assertEqual(2308, len(result))
+        self.assertEqual(1284, len(result))
         self.assertEqual(7, int.from_bytes(result[1:2], "big"))
 
     def test_create_set_package(self):
@@ -20,7 +20,7 @@ class Test_packer(unittest.TestCase):
 
         result = packer.create_set_package("testkey", "value")
         
-        self.assertEqual(2308, len(result))
+        self.assertEqual(1284, len(result))
         self.assertEqual(7, int.from_bytes(result[1:2], "big"))
         self.assertEqual(5, int.from_bytes(result[258:260], "big"))
 
@@ -30,8 +30,8 @@ class Test_packer(unittest.TestCase):
 
         result = packer.create_sync_package()
         
-        self.assertEqual(2308, len(result))
-        self.assertEqual(2048, int.from_bytes(result[1:5], "big"))
+        self.assertEqual(1284, len(result))
+        self.assertEqual(1024, int.from_bytes(result[1:5], "big"))
 
     def test_create_error_package(self):
         settings = Settings()
@@ -39,7 +39,7 @@ class Test_packer(unittest.TestCase):
 
         result = packer.create_error_package("1", "2")
         
-        self.assertEqual(2308, len(result))
+        self.assertEqual(1284, len(result))
 
 
 if __name__ == '__main__':

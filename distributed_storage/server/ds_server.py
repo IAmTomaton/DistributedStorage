@@ -17,16 +17,18 @@ class DSServer(threading.Thread):
 
     def _work(self):
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        
+
         while self._live:
             try:
                 if self._connect():
 
-                    self._sock.send(self._packer.create_number_package(self._number))
+                    self._sock.send(
+                        self._packer.create_number_package(self._number))
 
                     while self._live:
                         try:
-                            package = self._sock.recv(self._settings.len_package)
+                            package = self._sock.recv(
+                                self._settings.len_package)
                             if not package:
                                 break
                             self._handler.handle_package(package, self)

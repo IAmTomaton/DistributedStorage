@@ -1,6 +1,5 @@
 import unittest
 from distributed_storage.client.ds_client import DSClient
-from distributed_storage.exeptions.connect_exeption import ConnectExeption
 import time
 
 

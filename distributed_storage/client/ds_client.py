@@ -14,13 +14,14 @@ class DSClient(threading.Thread):
 
     def _work(self):
         self._sock = socket.socket()
-        
+
         while self._live:
             try:
                 if self._connect():
                     while self._live:
                         try:
-                            package = self._sock.recv(self._settings.len_package)
+                            package = self._sock.recv(
+                                self._settings.len_package)
                             if len(package) == 0:
                                 break
                             self._handler.handle_package(package)

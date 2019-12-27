@@ -59,7 +59,8 @@ class Manager:
         if command == "g":
             count = self._create_order(key, package, customer)
             if count == 0:
-                customer.send(self._packer.create_error_package_not_server(key))
+                customer.send(
+                    self._packer.create_error_package_not_server(key))
         elif command == "s":
             self._send_set_package(package, key)
 
@@ -89,8 +90,8 @@ class Manager:
 
         for i in range(self._amount_duplication):
             index_server = (hash + i) % self._number_servers
-            if self._server_table[index_server] != customer and\
-                self._server_table[index_server].connected:
+            conn = self._server_table[index_server].connected
+            if self._server_table[index_server] != customer and conn:
 
                 self._add_order(order, index_server)
                 self._server_table[index_server].send(package)
