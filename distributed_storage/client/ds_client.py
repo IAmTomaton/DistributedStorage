@@ -1,20 +1,24 @@
 import socket
-import threading
+from threading import Thread
 
 
-class DSClient(threading.Thread):
+class DSClient:
 
     def __init__(self, ip, port, handler, settings):
-        threading.Thread.__init__(self)
         self._settings = settings
         self._ip = ip
         self._port = port
         self._handler = handler
-        self._live = True
+        self._live = False
+        self._thread = None
+        self._sock = None
+
+    @property
+    def connected(self):
+        return self._sock is not None and\
+            self._sock.fileno() != -1
 
     def _work(self):
-        self._sock = socket.socket()
-
         while self._live:
             try:
                 if self._connect():
@@ -34,12 +38,15 @@ class DSClient(threading.Thread):
                     pass
                 self._sock.close()
 
-    def run(self):
-        self._work()
+    def start(self):
+        self._live = True
+        self._thread = Thread(target=self._work)
+        self._thread.start()
 
     def _connect(self):
         while self._live:
             try:
+                self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self._sock.connect((self._ip, self._port))
                 self._sock.settimeout(0.1)
                 return True
@@ -52,3 +59,6 @@ class DSClient(threading.Thread):
 
     def turn_off(self):
         self._live = False
+        if self._thread is not None:
+            self._thread.join()
+            self._thread = None

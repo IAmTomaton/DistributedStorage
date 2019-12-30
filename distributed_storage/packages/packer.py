@@ -58,7 +58,7 @@ class Packer:
             4, byteorder='big'))
 
         package += bytearray(b'\x00') * (
-            self._settings.standart_len_package - 5)
+            self._settings.len_package - 5)
 
         return bytes(package)
 

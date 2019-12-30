@@ -1,23 +1,23 @@
-import threading
+from threading import Thread
 import socket
 
 
-class ClientConnector(threading.Thread):
+class ClientConnector:
 
     def __init__(self, ip, port, manager, packer):
-        threading.Thread.__init__(self)
         self._ip = ip
         self._port = port
         self._manager = manager
         self._packer = packer
         self._live = False
+        self._thread = None
 
     def _accept_connections(self):
         sock = socket.socket()
         sock.bind((self._ip, self._port))
         sock.listen(1)
 
-        sock.settimeout(1)
+        sock.settimeout(0.1)
 
         self._live = True
         try:
@@ -36,8 +36,13 @@ class ClientConnector(threading.Thread):
                 pass
             sock.close()
 
-    def run(self):
-        self._accept_connections()
+    def start(self):
+        self._live = True
+        self._thread = Thread(target=self._accept_connections)
+        self._thread.start()
 
     def turn_off(self):
         self._live = False
+        if self._thread is not None:
+            self._thread.join()
+            self._thread = None

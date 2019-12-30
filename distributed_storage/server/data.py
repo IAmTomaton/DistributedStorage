@@ -7,7 +7,6 @@ class Data:
 
     def handle_package(self, package, server):
         command, key, value = self._unpacker.parse_package(package)
-        print(command, key)
         if command == "g":
             if key in self._data:
                 server.send(self._packer.create_set_package(key,

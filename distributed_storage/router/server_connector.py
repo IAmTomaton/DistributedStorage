@@ -1,11 +1,10 @@
-import threading
+from threading import Thread
 import socket
 
 
-class ServerConnector(threading.Thread):
+class ServerConnector:
 
     def __init__(self, ip, port, manager, settings, packer, unpacker):
-        threading.Thread.__init__(self)
         self._ip = ip
         self._port = port
         self._manager = manager
@@ -13,13 +12,14 @@ class ServerConnector(threading.Thread):
         self._packer = packer
         self._unpacker = unpacker
         self._live = False
+        self._thread = None
 
     def _accept_connections(self):
-        sock = socket.socket()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind((self._ip, self._port))
         sock.listen(1)
 
-        sock.settimeout(1)
+        sock.settimeout(0.1)
 
         self._live = True
         try:
@@ -61,8 +61,13 @@ class ServerConnector(threading.Thread):
                     pass
                 conn.close()
 
-    def run(self):
-        self._accept_connections()
+    def start(self):
+        self._live = True
+        self._thread = Thread(target=self._accept_connections)
+        self._thread.start()
 
     def turn_off(self):
         self._live = False
+        if self._thread is not None:
+            self._thread.join()
+            self._thread = None

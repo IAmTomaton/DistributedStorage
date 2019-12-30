@@ -1,12 +1,10 @@
-import threading
-from threading import Lock
+from threading import Lock, Thread
 import socket
 
 
-class Server(threading.Thread):
+class Server:
 
     def __init__(self, settings, manager, packer, unpacker, number):
-        threading.Thread.__init__(self)
         self._manager = manager
         self._settings = settings
         self._packer = packer
@@ -15,6 +13,7 @@ class Server(threading.Thread):
         self._conn = None
         self._live = False
         self._lock = Lock()
+        self._thread = None
 
     @property
     def connected(self):
@@ -60,8 +59,13 @@ class Server(threading.Thread):
                 self._lock.release()
             self._manager.skip_orders(self._number)
 
-    def run(self):
-        self._work()
+    def start(self):
+        self._live = True
+        self._thread = Thread(target=self._work)
+        self._thread.start()
 
     def turn_off(self):
         self._live = False
+        if self._thread is not None:
+            self._thread.join()
+            self._thread = None

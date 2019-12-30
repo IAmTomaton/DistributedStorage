@@ -1,15 +1,15 @@
-import threading
+from threading import Thread
 import socket
 
 
-class Client(threading.Thread):
+class Client:
 
     def __init__(self, conn, settings, manager):
-        threading.Thread.__init__(self)
         self._conn = conn
         self._manager = manager
         self._live = True
         self._settings = settings
+        self._thread = None
 
     def send(self, package):
         if (self._conn.fileno() != -1 and self._live):
@@ -22,7 +22,6 @@ class Client(threading.Thread):
             while self._live:
                 try:
                     package = self._conn.recv(self._settings.len_package)
-                    print(self._settings.len_package, len(package))
                     if len(package) == 0:
                         break
                     self._manager.handle_client_package(package, self)
@@ -36,8 +35,13 @@ class Client(threading.Thread):
                 pass
             self._conn.close()
 
-    def run(self):
-        self._work()
+    def start(self):
+        self._live = True
+        self._thread = Thread(target=self._work)
+        self._thread.start()
 
     def turn_off(self):
         self._live = False
+        if self._thread is not None:
+            self._thread.join()
+            self._thread = None

@@ -26,6 +26,6 @@ class Router:
         self._client_connector.start()
 
     def turn_off(self):
-        self._client_connector.turn_off()
         self._server_connector.turn_off()
+        self._client_connector.turn_off()
         self._manager.turn_off()
