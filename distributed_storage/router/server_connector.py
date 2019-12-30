@@ -15,7 +15,7 @@ class ServerConnector:
         self._thread = None
 
     def _accept_connections(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock = socket.socket()
         sock.bind((self._ip, self._port))
         sock.listen(1)
 
@@ -30,10 +30,7 @@ class ServerConnector:
                     pass
         finally:
             self._live = False
-            try:
-                sock.shutdown(socket.SHUT_RDWR)
-            except:
-                pass
+            sock.shutdown(socket.SHUT_RDWR)
             sock.close()
 
     def _accept(self, sock):
@@ -54,10 +51,7 @@ class ServerConnector:
                     pass
         finally:
             if check:
-                try:
-                    conn.shutdown(socket.SHUT_RDWR)
-                except:
-                    pass
+                conn.shutdown(socket.SHUT_RDWR)
                 conn.close()
 
     def start(self):

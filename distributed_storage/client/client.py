@@ -4,6 +4,7 @@ from distributed_storage.for_package.packer import Packer
 from distributed_storage.for_package.unpacker import Unpacker
 from distributed_storage.for_package.settings import Settings
 from distributed_storage.client.buffer import Buffer
+from distributed_storage.exceptions import NoRouterException
 
 
 class Client:
@@ -33,8 +34,8 @@ class Client:
         return self._buffer.get(key)
 
     def _check_connect(self):
-        while not self._ds_client.connected:
-            sleep(0.1)
+        if not self._ds_client.connected:
+            raise NoRouterException()
 
     def contains(self, key):
         return self._buffer.contains(key)

@@ -33,7 +33,7 @@ class Orders:
         if order.count == 0:
             if order.package is None:
                 order.customer.send(
-                    packer.create_error_package_not_key(order.key))
+                    packer.create_error_package_no_key(order.key))
             else:
                 errors = order.errors
                 for i in errors:

@@ -12,6 +12,6 @@ class Data:
                 server.send(self._packer.create_set_package(key,
                                                             self._data[key]))
             else:
-                server.send(self._packer.create_error_package_not_key(key))
+                server.send(self._packer.create_error_package_no_key(key))
         elif command == "s":
             self._data[key] = value

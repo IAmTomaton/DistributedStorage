@@ -59,7 +59,7 @@ class Manager:
             count = self._create_order(key, package, customer)
             if count == 0:
                 customer.send(
-                    self._packer.create_error_package_not_server(key))
+                    self._packer.create_error_package_no_server(key))
         elif command == "s":
             self._send_set_package(package, key)
 

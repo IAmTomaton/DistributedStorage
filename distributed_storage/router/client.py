@@ -37,10 +37,7 @@ class Client:
                     pass
         finally:
             self._live = False
-            try:
-                sock.shutdown(socket.SHUT_RDWR)
-            except:
-                pass
+            sock.shutdown(socket.SHUT_RDWR)
             self._conn.close()
 
     def start(self):

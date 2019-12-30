@@ -52,10 +52,7 @@ class Server:
             self._live = False
             self._lock.acquire()
             try:
-                try:
-                    sock.shutdown(socket.SHUT_RDWR)
-                except:
-                    pass
+                sock.shutdown(socket.SHUT_RDWR)
                 self._conn.close()
                 self._conn = None
             finally:

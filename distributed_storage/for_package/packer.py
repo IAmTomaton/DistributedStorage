@@ -87,8 +87,8 @@ class Packer:
 
         return bytes(package)
 
-    def create_error_package_not_key(self, key):
+    def create_error_package_no_key(self, key):
         return self.create_error_package(key, "nk")
 
-    def create_error_package_not_server(self, key):
+    def create_error_package_no_server(self, key):
         return self.create_error_package(key, "ns")

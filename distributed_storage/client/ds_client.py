@@ -38,10 +38,7 @@ class DSClient:
                         except socket.timeout:
                             pass
             finally:
-                try:
-                    self._sock.shutdown(socket.SHUT_RDWR)
-                except:
-                    pass
+                self._sock.shutdown(socket.SHUT_RDWR)
                 self._sock.close()
 
     def _connect(self):

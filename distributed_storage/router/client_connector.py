@@ -29,10 +29,7 @@ class ClientConnector:
                     pass
         finally:
             self._live = False
-            try:
-                sock.shutdown(socket.SHUT_RDWR)
-            except:
-                pass
+            sock.shutdown(socket.SHUT_RDWR)
             sock.close()
 
     def start(self):
