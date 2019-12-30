@@ -10,19 +10,27 @@ class Client:
         self._live = True
         self._settings = settings
         self._thread = None
+        self._connected = False
+
+    @property
+    def connected(self):
+        return self._connected
 
     def send(self, package):
-        if (self._conn.fileno() != -1 and self._live):
+        if self.connected and self._live:
             self._conn.send(package)
 
     def _work(self):
+        self._set_connected()
         self._conn.settimeout(0.1)
         self._live = True
+
         try:
             while self._live:
                 try:
                     package = self._conn.recv(self._settings.len_package)
                     if len(package) == 0:
+                        self._disconnected()
                         break
                     self._manager.handle_client_package(package, self)
                 except socket.timeout:
@@ -45,3 +53,9 @@ class Client:
         if self._thread is not None:
             self._thread.join()
             self._thread = None
+
+    def _disconnected(self):
+        self._connected = False
+
+    def _set_connected(self):
+        self._connected = True

@@ -1,6 +1,6 @@
-from distributed_storage.packages.packer import Packer
-from distributed_storage.packages.unpacker import Unpacker
-from distributed_storage.packages.settings import Settings
+from distributed_storage.for_package.packer import Packer
+from distributed_storage.for_package.unpacker import Unpacker
+from distributed_storage.for_package.settings import Settings
 from distributed_storage.server.ds_server import DSServer
 from distributed_storage.server.data import Data
 

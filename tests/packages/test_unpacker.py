@@ -1,6 +1,6 @@
-from distributed_storage.packages.unpacker import Unpacker
-from distributed_storage.packages.packer import Packer
-from distributed_storage.packages.settings import Settings
+from distributed_storage.for_package.unpacker import Unpacker
+from distributed_storage.for_package.packer import Packer
+from distributed_storage.for_package.settings import Settings
 import unittest
 
 
@@ -31,17 +31,6 @@ class Test_unpacker(unittest.TestCase):
         self.assertEqual("g", command)
         self.assertEqual("key", key)
         self.assertEqual("", value)
-
-    def test_sync(self):
-        settings = Settings()
-        packer = Packer(settings)
-        unpacker = Unpacker(settings)
-
-        package = packer.create_sync_package()
-
-        unpacker.parse_sync_package(package)
-
-        self.assertEqual(1024, settings.max_len_value)
 
 
 if __name__ == '__main__':

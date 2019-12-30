@@ -12,11 +12,16 @@ class DSClient:
         self._live = False
         self._thread = None
         self._sock = None
+        self._connected = False
 
     @property
     def connected(self):
-        return self._sock is not None and\
-            self._sock.fileno() != -1
+        return self._connected
+
+    def start(self):
+        self._live = True
+        self._thread = Thread(target=self._work)
+        self._thread.start()
 
     def _work(self):
         while self._live:
@@ -27,6 +32,7 @@ class DSClient:
                             package = self._sock.recv(
                                 self._settings.len_package)
                             if len(package) == 0:
+                                self._disconnected()
                                 break
                             self._handler.handle_package(package)
                         except socket.timeout:
@@ -38,16 +44,12 @@ class DSClient:
                     pass
                 self._sock.close()
 
-    def start(self):
-        self._live = True
-        self._thread = Thread(target=self._work)
-        self._thread.start()
-
     def _connect(self):
         while self._live:
             try:
                 self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self._sock.connect((self._ip, self._port))
+                self._set_connected()
                 self._sock.settimeout(0.1)
                 return True
             except ConnectionRefusedError:
@@ -62,3 +64,9 @@ class DSClient:
         if self._thread is not None:
             self._thread.join()
             self._thread = None
+
+    def _disconnected(self):
+        self._connected = False
+
+    def _set_connected(self):
+        self._connected = True

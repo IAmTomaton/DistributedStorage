@@ -1,8 +1,8 @@
 import unittest
 from distributed_storage.client.buffer import Buffer
-from distributed_storage.packages.unpacker import Unpacker
-from distributed_storage.packages.packer import Packer
-from distributed_storage.packages.settings import Settings
+from distributed_storage.for_package.unpacker import Unpacker
+from distributed_storage.for_package.packer import Packer
+from distributed_storage.for_package.settings import Settings
 
 
 class Test_test_buffer(unittest.TestCase):

@@ -14,16 +14,16 @@ class Server:
         self._live = False
         self._lock = Lock()
         self._thread = None
+        self._connected = False
 
     @property
     def connected(self):
-        return self._conn is not None and\
-            self._conn.fileno() != -1
+        return self._connected
 
     def send(self, package):
         self._lock.acquire()
         try:
-            if (self.connected and self._live):
+            if self.connected and self._live:
                 self._conn.send(package)
         finally:
             self._lock.release()
@@ -33,13 +33,16 @@ class Server:
         self.start()
 
     def _work(self):
-        self._conn.settimeout(0.1)
+        self._set_connected()
         self._live = True
+        self._conn.settimeout(0.1)
+
         try:
             while self._live:
                 try:
                     package = self._conn.recv(self._settings.len_package)
-                    if len(package) == 0:
+                    if not package:
+                        self._disconnected()
                         break
                     self._manager.handle_server_package(package,
                                                         self._number)
@@ -69,3 +72,9 @@ class Server:
         if self._thread is not None:
             self._thread.join()
             self._thread = None
+
+    def _disconnected(self):
+        self._connected = False
+
+    def _set_connected(self):
+        self._connected = True

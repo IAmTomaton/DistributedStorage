@@ -24,7 +24,6 @@ class ClientConnector:
             while self._live:
                 try:
                     conn, addr = sock.accept()
-                    conn.send(self._packer.create_sync_package())
                     self._manager.add_client(conn, addr)
                 except socket.timeout:
                     pass

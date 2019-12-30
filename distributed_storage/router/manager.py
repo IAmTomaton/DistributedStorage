@@ -52,7 +52,6 @@ class Manager:
         client = Client(conn, self._settings, self)
         self._clients.append(client)
         client.start()
-        client.send(self._get_sync_package())
 
     def handle_client_package(self, package, customer):
         command, key, value = self._unpacker.parse_package(package)
@@ -111,9 +110,6 @@ class Manager:
         for i in key:
             sum = int.from_bytes(i.encode('utf-8'), "big") + sum * number
         return sum % self._number_servers
-
-    def _get_sync_package(self):
-        return self._packer.create_sync_package()
 
     def skip_orders(self, index):
         self._order_table[index].skip()

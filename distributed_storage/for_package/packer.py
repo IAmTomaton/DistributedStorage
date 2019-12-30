@@ -51,17 +51,6 @@ class Packer:
 
         return bytes(package)
 
-    def create_sync_package(self):
-        package = bytearray(b'y')
-
-        package += bytearray((self._settings.max_len_value).to_bytes(
-            4, byteorder='big'))
-
-        package += bytearray(b'\x00') * (
-            self._settings.len_package - 5)
-
-        return bytes(package)
-
     def create_number_package(self, number):
         package = bytearray(b'n')
 
@@ -98,10 +87,8 @@ class Packer:
 
         return bytes(package)
 
-    def create_error_package_not_server(self, key):
-        text = "server storing key disabled"
-        return self.create_error_package(key, text)
-
     def create_error_package_not_key(self, key):
-        text = "the key does not exist"
-        return self.create_error_package(key, text)
+        return self.create_error_package(key, "nk")
+
+    def create_error_package_not_server(self, key):
+        return self.create_error_package(key, "ns")

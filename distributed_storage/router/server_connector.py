@@ -40,11 +40,10 @@ class ServerConnector:
         conn, addr = sock.accept()
         check = True
         try:
-            conn.send(self._packer.create_sync_package())
             conn.settimeout(0.1)
             while self._live:
                 try:
-                    package = conn.recv(self._settings.standart_len_package)
+                    package = conn.recv(self._settings.len_package)
                     if not package:
                         break
                     number = self._unpacker.parse_number_package(package)

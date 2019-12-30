@@ -33,15 +33,6 @@ class Unpacker:
 
         return str_command, str_key, str_value
 
-    def parse_sync_package(self, package):
-        command = package[0:1]
-        str_command = command.decode(self._settings.encoding)
-
-        if str_command != "y":
-            return
-        max_len_value = int.from_bytes(package[1:5], "big")
-        self._settings.max_len_value = max_len_value
-
     def parse_number_package(self, package):
         command = package[0:1]
         str_command = command.decode(self._settings.encoding)

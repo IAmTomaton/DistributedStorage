@@ -1,5 +1,5 @@
 import unittest
-from distributed_storage.packages.settings import Settings
+from distributed_storage.for_package.settings import Settings
 
 
 class Test_settings(unittest.TestCase):
@@ -16,7 +16,7 @@ class Test_settings(unittest.TestCase):
 
         result = settings.len_package
 
-        self.assertEqual(1284, result)
+        self.assertEqual(1460, result)
 
 
 if __name__ == '__main__':
