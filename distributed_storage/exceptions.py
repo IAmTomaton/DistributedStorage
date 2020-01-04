@@ -1,4 +1,9 @@
-class NoKeyException(Exception):
+class DSException(Exception):
+
+    def __init__(self):
+        self._value = "DSException"
+
+class NoKeyException(DSException):
 
     def __init__(self, key):
         self._value = "this key is not in storage" + key
@@ -7,7 +12,7 @@ class NoKeyException(Exception):
         return(repr(self._value))
 
 
-class NoServerException(Exception):
+class NoServerException(DSException):
 
     def __init__(self, key):
         self._value = "there are no servers that could store this key" + key
@@ -16,7 +21,7 @@ class NoServerException(Exception):
         return(repr(self._value))
 
 
-class NoRouterException(Exception):
+class NoRouterException(DSException):
 
     def __init__(self):
         self._value = "the client is not connected to the router"

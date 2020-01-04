@@ -1,5 +1,6 @@
 from threading import Thread
 import socket
+from time import sleep
 
 
 class ServerConnector:
@@ -15,7 +16,7 @@ class ServerConnector:
         self._thread = None
 
     def _accept_connections(self):
-        sock = socket.socket()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind((self._ip, self._port))
         sock.listen(1)
 
@@ -30,7 +31,10 @@ class ServerConnector:
                     pass
         finally:
             self._live = False
-            sock.shutdown(socket.SHUT_RDWR)
+            try:
+                sock.shutdown(socket.SHUT_RDWR)
+            except (socket.error, OSError, ValueError):
+                pass
             sock.close()
 
     def _accept(self, sock):
@@ -51,7 +55,10 @@ class ServerConnector:
                     pass
         finally:
             if check:
-                conn.shutdown(socket.SHUT_RDWR)
+                try:
+                    conn.shutdown(socket.SHUT_RDWR)
+                except (socket.error, OSError, ValueError):
+                    pass
                 conn.close()
 
     def start(self):

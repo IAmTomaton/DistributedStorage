@@ -1,5 +1,6 @@
 from time import sleep
 from threading import Lock
+from distributed_storage.exceptions import DSException
 
 
 class Buffer:
@@ -11,10 +12,8 @@ class Buffer:
         self._unpacker = unpacker
 
     def get(self, key):
-        check = not(key in self._buffer or key in self._errors)
-        while check:
-            check = not(key in self._buffer or key in self._errors)
-            sleep(0.1)
+        if not(key in self._buffer or key in self._errors):
+            raise KeyError()
         self._buffer_lock.acquire()
         try:
             value = self._buffer.pop(key, None)

@@ -19,6 +19,8 @@ class Manager:
         self._application_lock = Lock()
         self._order_table = []
         self._server_table = []
+        self._buffer = {}
+        self._buffer_lock = Lock()
         for i in range(self._number_servers):
             self._application_table.append([])
             self._order_table.append(Orders())
@@ -40,13 +42,27 @@ class Manager:
     def _update_application_table(self):
         for i in range(self._number_servers):
             server = self._server_table[i]
+            table = self._application_table[i]
             buffer = []
-            for key in self._application_table[i]:
-                get_package = self._packer.create_get_package(key)
-                count = self._create_order(key, get_package, server)
-                if count == 0:
-                    buffer.append(key)
+            self._buffer_lock.acquire()
+            try:
+                self._update_aplication(server, table, buffer)
+            finally:
+                self._buffer_lock.release()
             self._application_table[i] = buffer
+
+    def _update_aplication(self, server, table, buffer):
+        packer = self._packer
+        for key in table:
+            if key in self._buffer:
+                value = self._buffer.pop(key)
+                set_package = packer.create_set_package(key, value)
+                server.send(set_package)
+                continue
+            get_package = packer.create_get_package(key)
+            count = self._create_order(key, get_package, server)
+            if count == 0:
+                buffer.append(key)
 
     def add_client(self, conn, addr):
         client = Client(conn, self._settings, self)
@@ -61,20 +77,30 @@ class Manager:
                 customer.send(
                     self._packer.create_error_package_no_server(key))
         elif command == "s":
-            self._send_set_package(package, key)
+            count = self._send_set_package(package, key)
+            if count == 0:
+                self._buffer_lock.acquire()
+                try:
+                    self._buffer[key] = value
+                finally:
+                    self._buffer_lock.release()
 
     def _send_set_package(self, package, key):
         hash = self._get_hash(key)
 
+        count = 0
         for i in range(self._amount_duplication):
             index_server = (hash + i) % self._number_servers
-            self.try_send_set_package(index_server, key, package)
+            if self.try_send_set_package(index_server, key, package):
+                count += 1
+        return count
 
     def try_send_set_package(self, index_server, key, package):
         if self._server_table[index_server].connected:
             self._server_table[index_server].send(package)
-        else:
-            self._add_application(key, index_server)
+            return True
+        self._add_application(key, index_server)
+        return False
 
     def _add_application(self, key, index):
         self._application_lock.acquire()

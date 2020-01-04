@@ -35,7 +35,7 @@ class DSServer:
             finally:
                 try:
                     self._sock.shutdown(socket.SHUT_RDWR)
-                except:
+                except (socket.error, OSError, ValueError):
                     pass
                 self._sock.close()
 

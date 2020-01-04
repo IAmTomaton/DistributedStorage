@@ -21,12 +21,10 @@ class Server:
         return self._connected
 
     def send(self, package):
-        self._lock.acquire()
-        try:
-            if self.connected and self._live:
-                self._conn.send(package)
-        finally:
-            self._lock.release()
+        if self.connected and self._live:
+            self._conn.send(package)
+            return True
+        return False
 
     def connect(self, conn):
         self._conn = conn
@@ -52,7 +50,7 @@ class Server:
             self._live = False
             self._lock.acquire()
             try:
-                sock.shutdown(socket.SHUT_RDWR)
+                self._conn.shutdown(socket.SHUT_RDWR)
                 self._conn.close()
                 self._conn = None
             finally:

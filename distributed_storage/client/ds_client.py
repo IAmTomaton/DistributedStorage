@@ -31,14 +31,17 @@ class DSClient:
                         try:
                             package = self._sock.recv(
                                 self._settings.len_package)
-                            if len(package) == 0:
+                            if not package:
                                 self._disconnected()
                                 break
                             self._handler.handle_package(package)
                         except socket.timeout:
                             pass
             finally:
-                self._sock.shutdown(socket.SHUT_RDWR)
+                try:
+                    self._sock.shutdown(socket.SHUT_RDWR)
+                except (socket.error, OSError, ValueError):
+                    pass
                 self._sock.close()
 
     def _connect(self):

@@ -26,11 +26,14 @@ class Client:
         package = self._packer.create_set_package(key, value)
         self._ds_client.send(package)
 
-    def get(self, key):
+    def send_get(self, key):
         key = str(self._database_number) + key
         self._check_connect()
         package = self._packer.create_get_package(key)
         self._ds_client.send(package)
+
+    def get(self, key):
+        key = str(self._database_number) + key
         return self._buffer.get(key)
 
     def _check_connect(self):
