@@ -12,7 +12,7 @@ class Test_test_data(unittest.TestCase):
 
         unpacker = Unpacker(settings)
         packer = Packer(settings)
-        data = Data(packer, unpacker, settings, 0, path="test_data")
+        data = Data(packer, unpacker, settings, 0)
 
         data._set_value("dsf", "saf")
 
@@ -27,7 +27,7 @@ class Test_test_data(unittest.TestCase):
 
         unpacker = Unpacker(settings)
         packer = Packer(settings)
-        data = Data(packer, unpacker, settings, 0, path="test_data")
+        data = Data(packer, unpacker, settings, 0)
 
         data._set_value("dsf", "saf")
         data._set_value("dsf2", "saf2")
@@ -43,7 +43,7 @@ class Test_test_data(unittest.TestCase):
 
         unpacker = Unpacker(settings)
         packer = Packer(settings)
-        data = Data(packer, unpacker, settings, 0, path="test_data")
+        data = Data(packer, unpacker, settings, 0)
 
         data._set_value("dsf", "saf")
         data._set_value("dsf", "s2")
