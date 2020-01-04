@@ -11,19 +11,19 @@ try:
     server = Server("localhost", 9095, 0)
     server.start()
 
-    #client = Client("localhost", 9090)
-    #client.start()
+    client = Client("localhost", 9090)
+    client.start()
 
     sleep(1)
 
-    #client.set("123", "456")
+    client.set("123", "456")
 
-    #value, error = client.get("123")
-    #print(value)
-    #print(error)
+    value, error = client.get("123")
+    print(value)
+    print(error)
 
 finally:
     sleep(1)
     server.turn_off()
-    #client.turn_off()
+    client.turn_off()
     router.turn_off()

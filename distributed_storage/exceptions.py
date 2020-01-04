@@ -3,6 +3,7 @@ class DSException(Exception):
     def __init__(self):
         self._value = "DSException"
 
+
 class NoKeyException(DSException):
 
     def __init__(self, key):

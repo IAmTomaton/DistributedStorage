@@ -194,7 +194,7 @@ class Test_test_integration(unittest.TestCase):
             client.set("123", "456")
 
             sleep(0.2)
-            
+
             router.turn_off()
 
             sleep(0.2)
