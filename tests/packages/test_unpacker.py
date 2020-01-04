@@ -32,6 +32,50 @@ class Test_unpacker(unittest.TestCase):
         self.assertEqual("key", key)
         self.assertEqual("", value)
 
+    def test_number(self):
+        settings = Settings()
+        packer = Packer(settings)
+        unpacker = Unpacker(settings)
+
+        package = packer.create_number_package(10)
+
+        result = unpacker.parse_number_package(package)
+
+        self.assertEqual(10, result)
+
+    def test_get_keys(self):
+        settings = Settings()
+        packer = Packer(settings)
+        unpacker = Unpacker(settings)
+
+        package = packer.create_get_keys_package(10)
+
+        result = unpacker.parse_get_keys_package(package)
+
+        self.assertEqual(10, result)
+
+    def test_count_keys(self):
+        settings = Settings()
+        packer = Packer(settings)
+        unpacker = Unpacker(settings)
+
+        package = packer.create_count_keys_package(10, 13)
+
+        result = unpacker.parse_count_keys_package(package)
+
+        self.assertEqual((10, 13), result)
+
+    def test_count_keys(self):
+        settings = Settings()
+        packer = Packer(settings)
+        unpacker = Unpacker(settings)
+
+        package = packer.create_keys_package(10, ["123", "456"])
+
+        result = unpacker.parse_keys_package(package)
+
+        self.assertEqual((10, ["123", "456"]), result)
+
 
 if __name__ == '__main__':
     unittest.main()

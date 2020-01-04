@@ -7,7 +7,7 @@ class DSException(Exception):
 class NoKeyException(DSException):
 
     def __init__(self, key):
-        self._value = "this key is not in storage" + key
+        self._value = "this key is not in storage: " + key
 
     def __str__(self):
         return(repr(self._value))
@@ -16,7 +16,7 @@ class NoKeyException(DSException):
 class NoServerException(DSException):
 
     def __init__(self, key):
-        self._value = "there are no servers that could store this key" + key
+        self._value = "there are no servers that could store this key: " + key
 
     def __str__(self):
         return(repr(self._value))

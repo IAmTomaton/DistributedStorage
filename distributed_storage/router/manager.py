@@ -2,6 +2,7 @@ from distributed_storage.router.server import Server
 from distributed_storage.router.client import Client
 from distributed_storage.router.order import Order
 from distributed_storage.router.orders import Orders
+from distributed_storage.router.order_keys import OrderKeys
 from threading import Lock
 
 
@@ -72,6 +73,15 @@ class Manager:
     def handle_client_package(self, package, customer):
         command, key, value = self._unpacker.parse_package(package)
         if command == "g":
+            self._buffer_lock.acquire()
+            try:
+                if key in self._buffer:
+                    value = self._buffer[key]
+                    package = self._packer.create_set_package(key, value)
+                    customer.send(package)
+                    return
+            finally:
+                self._buffer_lock.release()
             count = self._create_order(key, package, customer)
             if count == 0:
                 customer.send(
@@ -84,6 +94,20 @@ class Manager:
                     self._buffer[key] = value
                 finally:
                     self._buffer_lock.release()
+        elif command == "f":
+            self._create_order_keys(package, customer)
+
+    def _create_order_keys(self, package, customer):
+        number = self._unpacker.parse_get_keys_package(package)
+        order = OrderKeys(number, customer, self._unpacker,
+                          self._number_servers)
+
+        for i in range(self._number_servers):
+            conn = self._server_table[i].connected
+            if self._server_table[i] != customer and conn:
+
+                self._order_table[i].add_order(order)
+                self._server_table[i].send(package)
 
     def _send_set_package(self, package, key):
         hash = self._get_hash(key)

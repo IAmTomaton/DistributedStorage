@@ -32,6 +32,38 @@ class Test_packer(unittest.TestCase):
 
         self.assertEqual(1460, len(result))
 
+    def test_create_number_package(self):
+        settings = Settings()
+        packer = Packer(settings)
+
+        result = packer.create_number_package(1)
+
+        self.assertEqual(1460, len(result))
+
+    def test_create_get_keys_package(self):
+        settings = Settings()
+        packer = Packer(settings)
+
+        result = packer.create_get_keys_package(1)
+
+        self.assertEqual(1460, len(result))
+
+    def test_create_count_keys_package(self):
+        settings = Settings()
+        packer = Packer(settings)
+
+        result = packer.create_count_keys_package(10, 12)
+
+        self.assertEqual(1460, len(result))
+
+    def test_create_keys_package(self):
+        settings = Settings()
+        packer = Packer(settings)
+
+        result = packer.create_keys_package(10, ["123", "456"])
+
+        self.assertEqual(1460, len(result))
+
 
 if __name__ == '__main__':
     unittest.main()

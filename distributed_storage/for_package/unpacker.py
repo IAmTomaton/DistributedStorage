@@ -40,3 +40,50 @@ class Unpacker:
         if str_command != "n":
             return
         return int.from_bytes(package[1:5], "big")
+
+    def parse_get_keys_package(self, package):
+        command = package[0:1]
+        str_command = command.decode(self._settings.encoding)
+
+        if str_command != "f":
+            return
+        return int.from_bytes(package[1:5], "big")
+
+    def parse_count_keys_package(self, package):
+        command = package[0:1]
+        str_command = command.decode(self._settings.encoding)
+
+        if str_command != "c":
+            return None, None
+        number = int.from_bytes(package[1:5], "big")
+        count = int.from_bytes(package[5:9], "big")
+        return number, count
+
+    def parse_keys_package(self, package):
+        command = package[0:1]
+        str_command = command.decode(self._settings.encoding)
+
+        if str_command != "k":
+            return None, None
+
+        number = int.from_bytes(package[1:5], "big")
+        count = int.from_bytes(package[5:6], "big")
+
+        keys = []
+        for i in range(count):
+            start = 6 + 257 * i
+            len_key = int.from_bytes(
+                package[start:start + self._settings.len_len_key], "big")
+            key = package[start + self._settings.len_len_key:
+                          start + self._settings.len_len_key + len_key]
+            keys.append(key.decode(self._settings.encoding)[1:])
+        return number, keys
+
+    def parse_command(self, package):
+        command = package[0:1]
+        str_command = command.decode(self._settings.encoding)
+
+        return command
+
+    def parse_number_data(self, package):
+        return int.from_bytes(package[1:5], "big")

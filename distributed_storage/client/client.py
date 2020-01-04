@@ -48,3 +48,11 @@ class Client:
 
     def turn_off(self):
         self._ds_client.turn_off()
+
+    def send_get_keys(self,):
+        self._buffer.reset_keys()
+        package = self._packer.create_get_keys_package(self._database_number)
+        self._ds_client.send(package)
+
+    def keys(self):
+        return self._buffer.keys()

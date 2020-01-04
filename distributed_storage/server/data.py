@@ -71,3 +71,20 @@ class Data:
                 server.send(self._packer.create_error_package_no_key(key))
         elif command == "s":
             self._set_value(key, value)
+        elif command == "f":
+            number = self._unpacker.parse_get_keys_package(package)
+            package = self._packer.create_count_keys_package(number, len(self._keys))
+            server.send(package)
+            keys = self._keys.keys()
+            some_keys = []
+            for key in keys:
+                some_keys.append(key)
+                if len(some_keys) == 5:
+                    package = self._packer.create_keys_package(number,
+                                                               some_keys)
+                    server.send(package)
+                    some_keys = []
+            if len(some_keys) > 0:
+                package = self._packer.create_keys_package(number,
+                                                            some_keys)
+                server.send(package)

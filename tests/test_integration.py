@@ -4,6 +4,8 @@ from time import sleep
 from distributed_storage import Client
 from distributed_storage import Server
 from distributed_storage import NoRouterException
+from distributed_storage import NoServerException
+from distributed_storage import NoKeyException
 import socket
 
 
@@ -33,10 +35,9 @@ class Test_test_integration(unittest.TestCase):
 
             sleep(0.2)
 
-            value, error = client.get("123")
+            value = client.get("123")
 
             self.assertEqual("456", value)
-            self.assertIsNone(error)
 
         finally:
             server.turn_off()
@@ -75,10 +76,9 @@ class Test_test_integration(unittest.TestCase):
 
             sleep(0.2)
 
-            value, error = client.get("123")
+            value = client.get("123")
 
             self.assertEqual("456", value)
-            self.assertIsNone(error)
 
         finally:
             server1.turn_off()
@@ -124,10 +124,9 @@ class Test_test_integration(unittest.TestCase):
 
             sleep(0.2)
 
-            value, error = client.get("123")
+            value = client.get("123")
 
             self.assertEqual("456", value)
-            self.assertIsNone(error)
 
         finally:
             server1.turn_off()
@@ -166,9 +165,8 @@ class Test_test_integration(unittest.TestCase):
 
             sleep(0.2)
 
-            value, error = client.get("123")
+            value = client.get("123")
 
-            self.assertIsNone(error)
             self.assertEqual("456", value)
 
         finally:
@@ -207,9 +205,8 @@ class Test_test_integration(unittest.TestCase):
 
             sleep(0.2)
 
-            value, error = client.get("123")
+            value = client.get("123")
 
-            self.assertIsNone(error)
             self.assertEqual("456", value)
 
         finally:
@@ -248,9 +245,8 @@ class Test_test_integration(unittest.TestCase):
 
             sleep(0.2)
 
-            value, error = client.get("123")
+            value = client.get("123")
 
-            self.assertIsNone(error)
             self.assertEqual("456", value)
 
         finally:
@@ -270,7 +266,28 @@ class Test_test_integration(unittest.TestCase):
 
         finally:
             client.turn_off()
+
+    def test_no_server(self):
+        try:
             sleep(0.2)
+            router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
+            router.start()
+
+            client = Client("localhost", CLIENT_PORT)
+            client.start()
+
+            sleep(0.2)
+
+            client.send_get("123")
+
+            sleep(0.2)
+
+            with self.assertRaises(NoServerException):
+                client.get("123")
+
+        finally:
+            client.turn_off()
+            router.turn_off()
 
     def test_router_buffer(self):
         try:
@@ -296,10 +313,139 @@ class Test_test_integration(unittest.TestCase):
 
             sleep(0.2)
 
-            value, error = client.get("123")
+            value = client.get("123")
 
-            self.assertIsNone(error)
             self.assertEqual("456", value)
+
+        finally:
+            server.turn_off()
+            server.clear()
+            client.turn_off()
+            router.turn_off()
+
+    def test_no_key(self):
+        try:
+            sleep(0.2)
+
+            router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
+            router.start()
+
+            server = Server("localhost", SERVER_PORT, 3, "data")
+            server.start()
+
+            client = Client("localhost", CLIENT_PORT)
+            client.start()
+
+            sleep(0.2)
+
+            client.send_get("123")
+
+            sleep(0.2)
+
+            with self.assertRaises(NoKeyException):
+                client.get("123")
+
+        finally:
+            server.turn_off()
+            server.clear()
+            client.turn_off()
+            router.turn_off()
+
+    def test_different_base_numbers(self):
+        try:
+            sleep(0.2)
+
+            router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
+            router.start()
+
+            server1 = Server("localhost", SERVER_PORT, 3, "data")
+            server1.start()
+
+            server2 = Server("localhost", SERVER_PORT, 1, "data")
+            server2.start()
+
+            client1 = Client("localhost", CLIENT_PORT, 1)
+            client1.start()
+
+            client2 = Client("localhost", CLIENT_PORT, 2)
+            client2.start()
+
+            sleep(0.2)
+
+            client1.set("123", "456")
+
+            sleep(0.2)
+
+            client2.send_get("123")
+
+            sleep(0.2)
+
+            with self.assertRaises(NoKeyException):
+                client2.get("123")
+
+        finally:
+            server1.turn_off()
+            server1.clear()
+            server2.turn_off()
+            server2.clear()
+            client1.turn_off()
+            client2.turn_off()
+            router.turn_off()
+
+    def test_from_router_buffer(self):
+        try:
+            sleep(0.2)
+            router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
+            router.start()
+
+            client = Client("localhost", CLIENT_PORT)
+            client.start()
+
+            sleep(0.2)
+
+            client.set("123", "456")
+
+            sleep(0.2)
+
+            client.send_get("123")
+
+            sleep(0.2)
+
+            value = client.get("123")
+
+            self.assertEqual("456", value)
+
+        finally:
+            client.turn_off()
+            router.turn_off()
+
+    def test_keys(self):
+        try:
+            sleep(0.2)
+
+            router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
+            router.start()
+
+            server = Server("localhost", SERVER_PORT, 3, "data")
+            server.start()
+
+            client = Client("localhost", CLIENT_PORT)
+            client.start()
+
+            sleep(0.2)
+
+            client.set("123", "456")
+            client.set("128", "456")
+
+            sleep(0.2)
+
+            client.send_get_keys()
+
+            sleep(0.2)
+
+            value = client.keys()
+
+            self.assertEqual(["123", "128"], value)
 
         finally:
             server.turn_off()
