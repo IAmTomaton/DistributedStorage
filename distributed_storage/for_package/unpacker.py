@@ -47,7 +47,7 @@ class Unpacker:
 
         if str_command != "f":
             return
-        return int.from_bytes(package[1:5], "big")
+        return package[1:2]
 
     def parse_count_keys_package(self, package):
         command = package[0:1]
@@ -55,8 +55,8 @@ class Unpacker:
 
         if str_command != "c":
             return None, None
-        number = int.from_bytes(package[1:5], "big")
-        count = int.from_bytes(package[5:9], "big")
+        number = package[1:2]
+        count = int.from_bytes(package[2:6], "big")
         return number, count
 
     def parse_keys_package(self, package):
@@ -66,12 +66,12 @@ class Unpacker:
         if str_command != "k":
             return None, None
 
-        number = int.from_bytes(package[1:5], "big")
-        count = int.from_bytes(package[5:6], "big")
+        number = package[1:2]
+        count = int.from_bytes(package[2:3], "big")
 
         keys = []
         for i in range(count):
-            start = 6 + 257 * i
+            start = 3 + 257 * i
             len_key = int.from_bytes(
                 package[start:start + self._settings.len_len_key], "big")
             key = package[start + self._settings.len_len_key:
@@ -86,4 +86,4 @@ class Unpacker:
         return command
 
     def parse_number_data(self, package):
-        return int.from_bytes(package[1:5], "big")
+        return package[1:2]

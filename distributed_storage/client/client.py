@@ -10,8 +10,6 @@ from distributed_storage.exceptions import NoRouterException
 class Client:
 
     def __init__(self, ip, port, database_number=0):
-        self._database_number = database_number
-
         settings = Settings()
 
         unpacker = Unpacker(settings)
@@ -19,21 +17,23 @@ class Client:
         self._buffer = Buffer(unpacker)
 
         self._ds_client = DSClient(ip, port, self._buffer, settings)
+        self._database_number = ((database_number).to_bytes(
+            1, byteorder='big')).decode(settings.encoding)
 
     def set(self, key, value):
-        key = str(self._database_number) + key
+        key = self._database_number + key
         self._check_connect()
         package = self._packer.create_set_package(key, value)
         self._ds_client.send(package)
 
     def send_get(self, key):
-        key = str(self._database_number) + key
+        key = self._database_number + key
         self._check_connect()
         package = self._packer.create_get_package(key)
         self._ds_client.send(package)
 
     def get(self, key):
-        key = str(self._database_number) + key
+        key = self._database_number + key
         return self._buffer.get(key)
 
     def _check_connect(self):
@@ -50,6 +50,7 @@ class Client:
         self._ds_client.turn_off()
 
     def send_get_keys(self,):
+        self._check_connect()
         self._buffer.reset_keys()
         package = self._packer.create_get_keys_package(self._database_number)
         self._ds_client.send(package)

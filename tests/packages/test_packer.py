@@ -44,7 +44,7 @@ class Test_packer(unittest.TestCase):
         settings = Settings()
         packer = Packer(settings)
 
-        result = packer.create_get_keys_package(1)
+        result = packer.create_get_keys_package('1')
 
         self.assertEqual(1460, len(result))
 
@@ -52,7 +52,7 @@ class Test_packer(unittest.TestCase):
         settings = Settings()
         packer = Packer(settings)
 
-        result = packer.create_count_keys_package(10, 12)
+        result = packer.create_count_keys_package(b'\x08', 12)
 
         self.assertEqual(1460, len(result))
 
@@ -60,7 +60,7 @@ class Test_packer(unittest.TestCase):
         settings = Settings()
         packer = Packer(settings)
 
-        result = packer.create_keys_package(10, ["123", "456"])
+        result = packer.create_keys_package(b'\x08', ["123", "456"])
 
         self.assertEqual(1460, len(result))
 

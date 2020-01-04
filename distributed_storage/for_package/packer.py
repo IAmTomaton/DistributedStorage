@@ -96,26 +96,26 @@ class Packer:
     def create_get_keys_package(self, number):
         package = bytearray(b'f')
 
-        package += bytearray((number).to_bytes(4, byteorder='big'))
+        package += bytearray(number.encode(self._settings.encoding))
 
-        package += bytearray(b'\x00') * (self._settings.len_package - 5)
+        package += bytearray(b'\x00') * (self._settings.len_package - 2)
 
         return bytes(package)
 
     def create_count_keys_package(self, number, count):
         package = bytearray(b'c')
 
-        package += bytearray((number).to_bytes(4, byteorder='big'))
+        package += bytearray(number)
         package += bytearray((count).to_bytes(4, byteorder='big'))
 
-        package += bytearray(b'\x00') * (self._settings.len_package - 9)
+        package += bytearray(b'\x00') * (self._settings.len_package - 6)
 
         return bytes(package)
 
     def create_keys_package(self, number, keys):
         package = bytearray(b'k')
 
-        package += bytearray((number).to_bytes(4, byteorder='big'))
+        package += bytearray(number)
         package += bytearray((len(keys)).to_bytes(1, byteorder='big'))
         count = 0
         for i in range(len(keys)):
@@ -132,6 +132,6 @@ class Packer:
             package += len_key_package
             package += key_package
 
-        package += bytearray(b'\x00') * (169 + 257 * (5 - count))
+        package += bytearray(b'\x00') * (172 + 257 * (5 - count))
 
         return bytes(package)

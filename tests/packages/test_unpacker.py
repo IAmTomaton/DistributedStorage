@@ -48,33 +48,33 @@ class Test_unpacker(unittest.TestCase):
         packer = Packer(settings)
         unpacker = Unpacker(settings)
 
-        package = packer.create_get_keys_package(10)
+        package = packer.create_get_keys_package('1')
 
         result = unpacker.parse_get_keys_package(package)
 
-        self.assertEqual(10, result)
+        self.assertEqual(b'1', result)
 
     def test_count_keys(self):
         settings = Settings()
         packer = Packer(settings)
         unpacker = Unpacker(settings)
 
-        package = packer.create_count_keys_package(10, 13)
+        package = packer.create_count_keys_package(b'\x01', 13)
 
         result = unpacker.parse_count_keys_package(package)
 
-        self.assertEqual((10, 13), result)
+        self.assertEqual((b'\x01', 13), result)
 
-    def test_count_keys(self):
+    def test_keys(self):
         settings = Settings()
         packer = Packer(settings)
         unpacker = Unpacker(settings)
 
-        package = packer.create_keys_package(10, ["123", "456"])
+        package = packer.create_keys_package(b'\x01', ["1123", "1456"])
 
         result = unpacker.parse_keys_package(package)
 
-        self.assertEqual((10, ["123", "456"]), result)
+        self.assertEqual((b'\x01', ["123", "456"]), result)
 
 
 if __name__ == '__main__':

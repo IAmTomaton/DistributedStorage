@@ -22,7 +22,7 @@ class Test_test_integration(unittest.TestCase):
             router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
             router.start()
 
-            server = Server("localhost", SERVER_PORT, 3, "data")
+            server = Server("localhost", SERVER_PORT, 3)
             server.start()
 
             client = Client("localhost", CLIENT_PORT)
@@ -51,7 +51,7 @@ class Test_test_integration(unittest.TestCase):
             router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
             router.start()
 
-            server0 = Server("localhost", SERVER_PORT, 3, "data")
+            server0 = Server("localhost", SERVER_PORT, 0)
             server0.start()
 
             client = Client("localhost", CLIENT_PORT)
@@ -63,7 +63,7 @@ class Test_test_integration(unittest.TestCase):
 
             sleep(0.2)
 
-            server1 = Server("localhost", SERVER_PORT, 4, "data")
+            server1 = Server("localhost", SERVER_PORT, 1)
             server1.start()
 
             sleep(0.2)
@@ -93,10 +93,10 @@ class Test_test_integration(unittest.TestCase):
             router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
             router.start()
 
-            server0 = Server("localhost", SERVER_PORT, 3, "data")
+            server0 = Server("localhost", SERVER_PORT, 3)
             server0.start()
 
-            server1 = Server("localhost", SERVER_PORT, 4, "data")
+            server1 = Server("localhost", SERVER_PORT, 4)
             server1.start()
 
             client = Client("localhost", CLIENT_PORT)
@@ -141,7 +141,7 @@ class Test_test_integration(unittest.TestCase):
             router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
             router.start()
 
-            server = Server("localhost", SERVER_PORT, 3, "data")
+            server = Server("localhost", SERVER_PORT, 0)
             server.start()
 
             client = Client("localhost", CLIENT_PORT)
@@ -181,7 +181,7 @@ class Test_test_integration(unittest.TestCase):
             router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
             router.start()
 
-            server = Server("localhost", SERVER_PORT, 3, "data")
+            server = Server("localhost", SERVER_PORT, 1)
             server.start()
 
             client = Client("localhost", CLIENT_PORT)
@@ -221,7 +221,7 @@ class Test_test_integration(unittest.TestCase):
             router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
             router.start()
 
-            server = Server("localhost", SERVER_PORT, 3, "data")
+            server = Server("localhost", SERVER_PORT, 3)
             server.start()
 
             client = Client("localhost", CLIENT_PORT)
@@ -304,7 +304,7 @@ class Test_test_integration(unittest.TestCase):
 
             sleep(0.2)
 
-            server = Server("localhost", SERVER_PORT, 3, "data")
+            server = Server("localhost", SERVER_PORT, 0)
             server.start()
 
             sleep(0.2)
@@ -330,7 +330,7 @@ class Test_test_integration(unittest.TestCase):
             router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
             router.start()
 
-            server = Server("localhost", SERVER_PORT, 3, "data")
+            server = Server("localhost", SERVER_PORT, 1)
             server.start()
 
             client = Client("localhost", CLIENT_PORT)
@@ -358,10 +358,10 @@ class Test_test_integration(unittest.TestCase):
             router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
             router.start()
 
-            server1 = Server("localhost", SERVER_PORT, 3, "data")
+            server1 = Server("localhost", SERVER_PORT, 3)
             server1.start()
 
-            server2 = Server("localhost", SERVER_PORT, 1, "data")
+            server2 = Server("localhost", SERVER_PORT, 1)
             server2.start()
 
             client1 = Client("localhost", CLIENT_PORT, 1)
@@ -426,7 +426,7 @@ class Test_test_integration(unittest.TestCase):
             router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
             router.start()
 
-            server = Server("localhost", SERVER_PORT, 3, "data")
+            server = Server("localhost", SERVER_PORT, 1)
             server.start()
 
             client = Client("localhost", CLIENT_PORT)
@@ -451,6 +451,49 @@ class Test_test_integration(unittest.TestCase):
             server.turn_off()
             server.clear()
             client.turn_off()
+            router.turn_off()
+
+    def test_different_base_numbers_keys(self):
+        try:
+            sleep(0.2)
+
+            router = Router("", SERVER_PORT, "", CLIENT_PORT, 5)
+            router.start()
+
+            server1 = Server("localhost", SERVER_PORT, 4)
+            server1.start()
+
+            server2 = Server("localhost", SERVER_PORT, 1)
+            server2.start()
+
+            client1 = Client("localhost", CLIENT_PORT, 1)
+            client1.start()
+
+            client2 = Client("localhost", CLIENT_PORT, 2)
+            client2.start()
+
+            sleep(0.2)
+
+            client1.set("123", "456")
+            client2.set("323", "456")
+
+            sleep(0.2)
+
+            client2.send_get_keys()
+
+            sleep(0.2)
+
+            result = client2.keys()
+
+            self.assertEqual(["323"], result)
+
+        finally:
+            server1.turn_off()
+            server1.clear()
+            server2.turn_off()
+            server2.clear()
+            client1.turn_off()
+            client2.turn_off()
             router.turn_off()
 
 
