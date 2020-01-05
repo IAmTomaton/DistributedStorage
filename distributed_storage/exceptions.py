@@ -34,6 +34,7 @@ class NoRouterException(DSException):
     def __str__(self):
         return(repr(self._value))
 
+
 class LenKeyException(DSException):
 
     def __init__(self, key):
@@ -42,6 +43,7 @@ class LenKeyException(DSException):
 
     def __str__(self):
         return(repr(self._value))
+
 
 class LenValueException(DSException):
 
